@@ -1,8 +1,7 @@
-// const listProducts = require("./bamazonCustomer");
-const inquirer = require('inquirer');
+const manager = require("./managerMenu");
 const mysql = require("mysql");
 const cTable = require('console.table');
-
+    
 const connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -11,30 +10,10 @@ const connection = mysql.createConnection({
     database: "bamazon"
   });
 
-inquirer.prompt([
-    {
-        type: "list",
-        name: "choice",
-        message: "Welcome bamazon manager! What would you like to do?",
-        choices: ["View Products", "View Low Inventory", "Add To Inventory", "Add New Product"]
-    }
-])
+console.log("Welcome bamazon manager!")
 
+manager.menu(connection);
 
-function viewLowInventory(){
-    let query = connection.query(
-        `
-        SELECT * 
-        FROM products
-        `, function(err, res){
-            if(err) throw err;
-            let lowInventory= [];
-            for (let i =0; i< res.length; i++){
-                if (res[i].stock_quantity < 100){
-                    lowInventory.push(res[i]);
-                }
-            }
-            console.table(lowInventory);
-        }
-        )
+console.exports = {
+    connection: connection
 }

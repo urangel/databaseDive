@@ -85,7 +85,7 @@ function updateProduct(value, id){
       }
     ],
     function(err, res) {
-      console.log(res.affectedRows);
+        if(err) throw err;
     }
     );
 }
@@ -98,4 +98,7 @@ listProducts();
 
 }
 
-// module.exports = listProducts();
+module.exports = {
+    // listProducts: listProducts,
+    updateProduct: updateProduct
+}    
