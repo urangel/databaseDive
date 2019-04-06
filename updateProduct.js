@@ -1,8 +1,9 @@
-function updateProduct(connection, value, id){
+function updateProduct(connection, stock_quantity, product_sales, id){
     connection.query("UPDATE products SET ? WHERE ?",
     [
       {
-        stock_quantity: value
+        stock_quantity: stock_quantity,
+        product_sales: product_sales
       },
       {
         item_id: id

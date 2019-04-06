@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const mysql = require("mysql");
+const updateProduct = require("./updateProduct");
 const cTable = require('console.table');
 
 const connection = mysql.createConnection({
@@ -12,12 +13,31 @@ const connection = mysql.createConnection({
   
   connection.connect(function(err, res) {
     if (err) throw err;
-    prompt();
-    afterConnection();
+    welcome();
+    menu();
   });
+
+  function menu(){
+      inquirer.prompt([
+          {
+              type: "list",
+              name: "customerChoice",
+              message: "Would you like to buy something or skeddadle?",
+              choices: ["BUY", "SKEDADDLE"]
+          }
+      ])
+      .then(response =>{
+        if (response.customerChoice === "BUY"){
+            buySomething();
+        }
+        else{
+            console.log("Goodbye!");
+            connection.end();
+        }
+    })
+    };    
   
-  function afterConnection() {
-    // listProducts();
+  function buySomething() {
     inquirer
         .prompt([
             {
@@ -42,25 +62,20 @@ const connection = mysql.createConnection({
             let query = connection.query("SELECT * FROM products WHERE item_id = " + answers.item_id, function(err,res){
                 if (err) throw err;
                 if( res[0].stock_quantity < answers.quantity){
-                    console.log("Insufficient quantity!");
-                    connection.end();
+                    console.log("Seems we don't have enough...");
+                    menu();
 
                 }
                 else{
-                    console.log("You got it bub!");
+                    console.log("Thanks for shopping!");
                     let newQuantity = res[0].stock_quantity - answers.quantity;
-                    console.log(res[0].price);
                     let customerPrice = (answers.quantity * res[0].price).toFixed(2);
+                    let newProductSales = res[0].product_sales + parseFloat(customerPrice);
                     console.log("Your total is $" + customerPrice);
-                    // console.log("The new quantity is " + newQuantity);
                     
-                updateProduct(newQuantity, answers.item_id);
-
-                connection.query("SELECT * FROM products", function(err, res) {
-                    if (err) throw err;
-                    console.table(res);})
-
-                connection.end();
+                updateProduct.updateProduct(connection, newQuantity, newProductSales, answers.item_id);
+                listProducts();
+                menu();
                 }
             })
         });
@@ -70,35 +85,15 @@ function listProducts(){
     connection.query("SELECT * FROM products", function(err, res){
         if(err) throw err;
         console.log("\r\n");
-        console.table(res);       
+        console.table(res); 
+        console.log("\r\n");
     })
 }
 
-function updateProduct(value, id){
-    connection.query("UPDATE products SET ? WHERE ?",
-    [
-      {
-        stock_quantity: value
-      },
-      {
-        item_id: id
-      }
-    ],
-    function(err, res) {
-        if(err) throw err;
-    }
-    );
-}
-
-function prompt() {
+function welcome() {
     console.log(`
 Choose from our selection:
 `)
 listProducts();
 
 }
-
-module.exports = {
-    // listProducts: listProducts,
-    updateProduct: updateProduct
-}    

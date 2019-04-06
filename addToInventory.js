@@ -23,13 +23,13 @@ function addToInventory(connection, menu) {
         //here would be good to start creating modules for your functions and bring in the update function
         let query = connection.query(
             `
-            SELECT stock_quantity
+            SELECT *
             FROM products
             WHERE item_id = ${response.item_id}
             `, function (err, res){
                 if (err) throw err;
                 let newQuantity = res[0].stock_quantity + parseInt(response.amount);
-                update.updateProduct(connection, newQuantity, response.item_id);
+                update.updateProduct(connection, newQuantity, res[0].product_sales, response.item_id);
                 console.log("You have added to the inventory! View Products to see your change.")
                 menu(connection);
             }

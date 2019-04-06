@@ -28,6 +28,7 @@ function menu(connection){
             addProd.addNewProduct(connection, menu);
         }
         else if(response.choice === "Exit"){
+            console.log("Goodbye!");
             connection.end();
         }
     
